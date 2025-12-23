@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python Runner - Railway</title>
+    <title>Python Runner - Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -27,16 +27,42 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         
-        h1 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 2em;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
         }
         
-        .subtitle {
+        .header-left h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .user-info {
             color: #666;
-            margin-bottom: 30px;
-            font-size: 0.95em;
+            font-size: 0.9em;
+        }
+        
+        .logout-btn {
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
         }
         
         .section {
@@ -260,16 +286,34 @@
             color: #666;
             font-size: 0.9em;
         }
+        
+        .user-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🐍 Python Runner</h1>
-        <p class="subtitle">Chạy code Python trực tiếp trên Railway.com - Python 3.12</p>
+        <div class="header">
+            <div class="header-left">
+                <h1>🐍 Python Runner</h1>
+                <div class="user-info">
+                    Xin chào, <span class="user-badge">{{ username }}</span>
+                    <span style="margin-left: 10px; color: #999;">│</span>
+                    <span style="margin-left: 10px;">Workspace riêng của bạn</span>
+                </div>
+            </div>
+            <a href="/logout" class="logout-btn">🚪 Đăng xuất</a>
+        </div>
         
         <div id="alertContainer"></div>
         
-        <!-- Upload Section -->
         <div class="section">
             <h2>📤 Tải lên File</h2>
             <div class="upload-area" id="uploadArea">
@@ -280,7 +324,6 @@
             </div>
         </div>
         
-        <!-- File Selection -->
         <div class="section">
             <h2>🎯 Chọn File để Chạy</h2>
             <select id="fileSelect" size="5" class="file-list">
@@ -289,11 +332,10 @@
             <div class="flex-buttons">
                 <button class="btn btn-success" onclick="runFile()">▶️ Chạy File</button>
                 <button class="btn btn-info" onclick="refreshFiles()">🔄 Làm mới danh sách</button>
-                <button class="btn btn-danger" onclick="clearFiles()">🗑️ Xóa tất cả</button>
+                <button class="btn btn-danger" onclick="clearFiles()">🗑️ Xóa tất cả file của tôi</button>
             </div>
         </div>
         
-        <!-- Package Installation -->
         <div class="section">
             <h2>📦 Cài đặt Package</h2>
             <div style="display: flex; gap: 10px;">
@@ -303,7 +345,6 @@
             <button class="btn btn-info" onclick="listPackages()" style="margin-top: 10px;">📋 Xem packages đã cài</button>
         </div>
         
-        <!-- Output Section -->
         <div class="section">
             <h2>💻 Kết quả</h2>
             <div class="loading" id="loading">
@@ -313,11 +354,10 @@
             <div id="output" class="output" style="display: none;"></div>
         </div>
         
-        <!-- Statistics -->
         <div class="stats">
             <div class="stat-card">
                 <h3 id="fileCount">0</h3>
-                <p>File Python</p>
+                <p>File Python của bạn</p>
             </div>
             <div class="stat-card">
                 <h3 id="lastRun">--</h3>
@@ -334,10 +374,8 @@
         const loading = document.getElementById('loading');
         const alertContainer = document.getElementById('alertContainer');
 
-        // Upload area click
         uploadArea.addEventListener('click', () => fileInput.click());
 
-        // Drag and drop
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.classList.add('dragover');
@@ -541,7 +579,7 @@
         }
 
         async function clearFiles() {
-            if (!confirm('Bạn có chắc muốn xóa tất cả file?')) return;
+            if (!confirm('Bạn có chắc muốn xóa tất cả file của mình?')) return;
 
             showLoading(true);
 
@@ -563,7 +601,6 @@
             }
         }
 
-        // Load files on page load
         refreshFiles();
     </script>
 </body>
