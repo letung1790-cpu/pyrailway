@@ -79,6 +79,16 @@
             color: #333;
             margin-bottom: 15px;
             font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .help-text {
+            color: #999;
+            font-size: 0.85em;
+            margin-top: 8px;
+            display: block;
         }
         
         .upload-area {
@@ -93,12 +103,14 @@
         
         .upload-area:hover {
             border-color: #764ba2;
-            background: #f8f9fa;
+            background: #f8f9ff;
+            transform: translateY(-2px);
         }
         
         .upload-area.dragover {
             border-color: #28a745;
             background: #e8f5e9;
+            transform: scale(1.02);
         }
         
         input[type="file"] {
@@ -117,12 +129,17 @@
             white-space: nowrap;
         }
         
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
         
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
@@ -132,7 +149,7 @@
             color: white;
         }
         
-        .btn-success:hover {
+        .btn-success:hover:not(:disabled) {
             background: #218838;
             transform: translateY(-2px);
         }
@@ -142,7 +159,7 @@
             color: white;
         }
         
-        .btn-danger:hover {
+        .btn-danger:hover:not(:disabled) {
             background: #c82333;
             transform: translateY(-2px);
         }
@@ -152,7 +169,7 @@
             color: white;
         }
         
-        .btn-info:hover {
+        .btn-info:hover:not(:disabled) {
             background: #138496;
             transform: translateY(-2px);
         }
@@ -162,7 +179,7 @@
             color: #333;
         }
         
-        .btn-warning:hover {
+        .btn-warning:hover:not(:disabled) {
             background: #e0a800;
             transform: translateY(-2px);
         }
@@ -172,7 +189,7 @@
             color: white;
         }
         
-        .btn-secondary:hover {
+        .btn-secondary:hover:not(:disabled) {
             background: #5a6268;
         }
         
@@ -189,6 +206,7 @@
         select:focus, input[type="text"]:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
         .output {
@@ -214,6 +232,9 @@
             border-radius: 8px;
             margin-bottom: 15px;
             animation: slideIn 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         @keyframes slideIn {
@@ -246,9 +267,55 @@
         }
         
         .file-list {
-            max-height: 250px;
+            max-height: 300px;
             overflow-y: auto;
             margin-top: 10px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .file-item {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .file-item:hover {
+            background: #f8f9ff;
+        }
+        
+        .file-item.selected {
+            background: #e8f0fe;
+            border-left: 4px solid #667eea;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-icon {
+            font-size: 1.2em;
+        }
+        
+        .file-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .file-actions .btn {
+            padding: 6px 12px;
+            font-size: 0.85em;
+            margin: 0;
         }
         
         .loading {
@@ -283,6 +350,13 @@
             margin-top: 15px;
         }
         
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -291,22 +365,22 @@
         }
         
         .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
             text-align: center;
-            border: 2px solid #e0e0e0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
         
         .stat-card h3 {
-            color: #667eea;
-            font-size: 1.8em;
+            font-size: 2em;
             margin-bottom: 5px;
         }
         
         .stat-card p {
-            color: #666;
             font-size: 0.9em;
+            opacity: 0.9;
         }
         
         .user-badge {
@@ -319,7 +393,6 @@
             font-weight: 600;
         }
         
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -383,10 +456,11 @@
             font-weight: bold;
             cursor: pointer;
             line-height: 1;
+            transition: all 0.3s;
         }
         
         .close:hover {
-            opacity: 0.8;
+            transform: scale(1.2);
         }
         
         .modal-body {
@@ -423,6 +497,17 @@
             border-color: #667eea;
         }
         
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             body {
@@ -450,7 +535,7 @@
                 padding: 20px;
             }
             
-            .flex-buttons {
+            .flex-buttons, .button-group {
                 flex-direction: column;
             }
             
@@ -477,6 +562,19 @@
                 display: block;
                 margin-top: 5px;
             }
+            
+            .file-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .file-actions {
+                width: 100%;
+            }
+            
+            .file-actions .btn {
+                flex: 1;
+            }
         }
         
         @media (max-width: 480px) {
@@ -502,7 +600,7 @@
                 <div class="user-info">
                     Xin chào, <span class="user-badge">{{ username }}</span>
                     <span style="margin-left: 10px; color: #999;">│</span>
-                    <span style="margin-left: 10px;">Workspace riêng của bạn</span>
+                    <span style="margin-left: 10px;">Workspace của bạn</span>
                 </div>
             </div>
             <a href="/logout" class="logout-btn">🚪 Đăng xuất</a>
@@ -518,38 +616,68 @@
                 <p style="color: #999; margin-top: 10px; font-size: 0.9em;">Hỗ trợ: .py, .zip (tối đa 50MB)</p>
                 <input type="file" id="fileInput" accept=".py,.zip">
             </div>
+            <span class="help-text">💡 File .zip sẽ tự động được giải nén</span>
         </div>
         
         <div class="section">
-            <h2>📂 Quản lý File</h2>
-            <select id="fileSelect" size="8" class="file-list">
-                <option value="">-- Chưa có file nào --</option>
-            </select>
-            <div class="flex-buttons">
-                <button class="btn btn-success" onclick="runFile()">▶️ Chạy</button>
-                <button class="btn btn-primary" onclick="editFile()">✏️ Sửa</button>
-                <button class="btn btn-warning" onclick="renameFile()">🏷️ Đổi tên</button>
-                <button class="btn btn-info" onclick="refreshFiles()">🔄 Làm mới</button>
-                <button class="btn btn-danger" onclick="clearFiles()">🗑️ Xóa tất cả</button>
+            <h2>📂 Quản lý File Python</h2>
+            <div id="fileListContainer" class="file-list">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📄</div>
+                    <p>Chưa có file nào</p>
+                    <p style="font-size: 0.9em; margin-top: 5px;">Tải lên file Python để bắt đầu</p>
+                </div>
+            </div>
+            <span class="help-text">💡 Click vào file để chọn, sau đó chọn hành động bên dưới</span>
+            
+            <div class="button-group">
+                <button class="btn btn-success" id="runBtn" onclick="runFile()" disabled>
+                    ▶️ Chạy File
+                </button>
+                <button class="btn btn-primary" id="editBtn" onclick="editFile()" disabled>
+                    ✏️ Chỉnh sửa
+                </button>
+                <button class="btn btn-warning" id="renameBtn" onclick="renameFile()" disabled>
+                    🏷️ Đổi tên
+                </button>
+                <button class="btn btn-danger" id="deleteBtn" onclick="deleteSelectedFile()" disabled>
+                    🗑️ Xóa file này
+                </button>
+            </div>
+            
+            <div class="button-group" style="border-top: 2px dashed #e0e0e0; padding-top: 15px; margin-top: 15px;">
+                <button class="btn btn-info" onclick="refreshFiles()">
+                    🔄 Làm mới danh sách
+                </button>
+                <button class="btn btn-danger" onclick="clearFiles()">
+                    🗑️ Xóa tất cả file
+                </button>
             </div>
         </div>
         
         <div class="section">
-            <h2>📦 Cài đặt Package</h2>
+            <h2>📦 Quản lý Package Python</h2>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <input type="text" id="packageInput" placeholder="Nhập tên package (vd: requests, numpy, pandas)" style="flex: 1; min-width: 200px;">
+                <input type="text" id="packageInput" placeholder="Nhập tên package (ví dụ: requests, numpy, pandas...)" style="flex: 1; min-width: 200px;">
                 <button class="btn btn-primary" onclick="installPackage()">📥 Cài đặt</button>
             </div>
-            <button class="btn btn-info" onclick="listPackages()" style="margin-top: 10px;">📋 Xem packages đã cài</button>
+            <button class="btn btn-info" onclick="listPackages()" style="margin-top: 10px; width: 100%;">
+                📋 Xem danh sách packages đã cài
+            </button>
+            <span class="help-text">💡 Nhấn Enter trong ô nhập để nhanh chóng cài đặt package</span>
         </div>
         
         <div class="section">
-            <h2>💻 Kết quả</h2>
+            <h2>💻 Kết quả thực thi</h2>
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p style="margin-top: 10px; color: #667eea;">Đang xử lý...</p>
+                <p style="margin-top: 10px; color: #667eea; font-weight: 600;">Đang xử lý...</p>
             </div>
             <div id="output" class="output" style="display: none;"></div>
+            <div id="outputEmpty" class="empty-state">
+                <div class="empty-state-icon">💻</div>
+                <p>Kết quả sẽ hiển thị ở đây</p>
+            </div>
         </div>
         
         <div class="stats">
@@ -568,15 +696,15 @@
     <div id="editModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>✏️ Chỉnh sửa File: <span id="editFileName"></span></h2>
+                <h2>✏️ Chỉnh sửa: <span id="editFileName"></span></h2>
                 <span class="close" onclick="closeEditModal()">&times;</span>
             </div>
             <div class="modal-body">
                 <textarea id="fileEditor" placeholder="Nội dung file sẽ hiển thị ở đây..."></textarea>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-success" onclick="saveFile()">💾 Lưu</button>
-                <button class="btn btn-secondary" onclick="closeEditModal()">❌ Đóng</button>
+                <button class="btn btn-success" onclick="saveFile()">💾 Lưu thay đổi</button>
+                <button class="btn btn-secondary" onclick="closeEditModal()">❌ Hủy</button>
             </div>
         </div>
     </div>
@@ -584,16 +712,21 @@
     <script>
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
-        const fileSelect = document.getElementById('fileSelect');
+        const fileListContainer = document.getElementById('fileListContainer');
         const output = document.getElementById('output');
+        const outputEmpty = document.getElementById('outputEmpty');
         const loading = document.getElementById('loading');
         const alertContainer = document.getElementById('alertContainer');
         const editModal = document.getElementById('editModal');
         const fileEditor = document.getElementById('fileEditor');
         const editFileName = document.getElementById('editFileName');
+        const packageInput = document.getElementById('packageInput');
 
         let currentEditingFile = null;
+        let selectedFile = null;
+        let allFiles = [];
 
+        // Upload area events
         uploadArea.addEventListener('click', () => fileInput.click());
 
         uploadArea.addEventListener('dragover', (e) => {
@@ -617,6 +750,13 @@
 
         fileInput.addEventListener('change', uploadFile);
 
+        // Package input - Enter to install
+        packageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                installPackage();
+            }
+        });
+
         // Close modal when clicking outside
         window.onclick = function(event) {
             if (event.target == editModal) {
@@ -627,23 +767,75 @@
         function showAlert(message, type = 'info') {
             const alert = document.createElement('div');
             alert.className = `alert alert-${type}`;
-            alert.innerHTML = `<strong>${type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'}</strong> ${message}`;
+            const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            alert.innerHTML = `<strong>${icon}</strong> <span>${message}</span>`;
             alertContainer.appendChild(alert);
             setTimeout(() => alert.remove(), 5000);
         }
 
         function showLoading(show) {
             loading.classList.toggle('active', show);
-            if (!show) {
-                loading.style.display = 'none';
+            if (show) {
+                outputEmpty.style.display = 'none';
             }
         }
 
         function showOutput(text, isError = false) {
             output.style.display = 'block';
+            outputEmpty.style.display = 'none';
             output.className = isError ? 'output error' : 'output';
             output.textContent = text;
             showLoading(false);
+        }
+
+        function updateFileList(files) {
+            allFiles = files;
+            document.getElementById('fileCount').textContent = files.length;
+            
+            if (files.length === 0) {
+                fileListContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📄</div>
+                        <p>Chưa có file nào</p>
+                        <p style="font-size: 0.9em; margin-top: 5px;">Tải lên file Python để bắt đầu</p>
+                    </div>
+                `;
+                updateButtonStates();
+                return;
+            }
+
+            fileListContainer.innerHTML = files.map(file => `
+                <div class="file-item" data-file="${file}" onclick="selectFile('${file}')">
+                    <span class="file-icon">📄</span>
+                    <span class="file-name">${file}</span>
+                </div>
+            `).join('');
+            
+            updateButtonStates();
+        }
+
+        function selectFile(filename) {
+            selectedFile = filename;
+            
+            // Update UI
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            const selectedItem = document.querySelector(`[data-file="${filename}"]`);
+            if (selectedItem) {
+                selectedItem.classList.add('selected');
+            }
+            
+            updateButtonStates();
+        }
+
+        function updateButtonStates() {
+            const hasFile = selectedFile !== null;
+            document.getElementById('runBtn').disabled = !hasFile;
+            document.getElementById('editBtn').disabled = !hasFile;
+            document.getElementById('renameBtn').disabled = !hasFile;
+            document.getElementById('deleteBtn').disabled = !hasFile;
         }
 
         async function uploadFile() {
@@ -677,23 +869,7 @@
             }
         }
 
-        function updateFileList(files) {
-            fileSelect.innerHTML = '';
-            if (files.length === 0) {
-                fileSelect.innerHTML = '<option value="">-- Chưa có file nào --</option>';
-            } else {
-                files.forEach(file => {
-                    const option = document.createElement('option');
-                    option.value = file;
-                    option.textContent = '📄 ' + file;
-                    fileSelect.appendChild(option);
-                });
-            }
-            document.getElementById('fileCount').textContent = files.length;
-        }
-
         async function runFile() {
-            const selectedFile = fileSelect.value;
             if (!selectedFile) {
                 showAlert('Vui lòng chọn file để chạy', 'error');
                 return;
@@ -701,6 +877,7 @@
 
             showLoading(true);
             output.style.display = 'none';
+            outputEmpty.style.display = 'none';
 
             try {
                 const response = await fetch('/run', {
@@ -712,10 +889,16 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    let result = '';
-                    if (data.stdout) result += '=== OUTPUT ===\n' + data.stdout + '\n';
-                    if (data.stderr) result += '\n=== ERROR ===\n' + data.stderr;
-                    if (!data.stdout && !data.stderr) result = 'Không có output';
+                    let result = `📂 File: ${selectedFile}\n`;
+                    result += `⏰ Time: ${data.timestamp}\n`;
+                    result += '═'.repeat(60) + '\n\n';
+                    
+                    if (data.stdout) result += '📤 OUTPUT:\n' + data.stdout + '\n';
+                    if (data.stderr) result += '\n⚠️ ERROR:\n' + data.stderr;
+                    if (!data.stdout && !data.stderr) result += 'Không có output\n';
+                    
+                    result += '\n' + '═'.repeat(60);
+                    result += `\n✅ Exit Code: ${data.returncode}`;
                     
                     showOutput(result, data.returncode !== 0);
                     document.getElementById('lastRun').textContent = new Date().toLocaleTimeString('vi-VN');
@@ -723,7 +906,7 @@
                     if (data.returncode === 0) {
                         showAlert('Chạy thành công! ✅', 'success');
                     } else {
-                        showAlert('Chạy thất bại (exit code: ' + data.returncode + ')', 'error');
+                        showAlert('Chạy thất bại với exit code: ' + data.returncode, 'error');
                     }
                 } else {
                     showOutput(data.error, true);
@@ -736,7 +919,6 @@
         }
 
         async function editFile() {
-            const selectedFile = fileSelect.value;
             if (!selectedFile) {
                 showAlert('Vui lòng chọn file để chỉnh sửa', 'error');
                 return;
@@ -799,7 +981,6 @@
         }
 
         async function renameFile() {
-            const selectedFile = fileSelect.value;
             if (!selectedFile) {
                 showAlert('Vui lòng chọn file để đổi tên', 'error');
                 return;
@@ -822,6 +1003,7 @@
 
                 if (response.ok) {
                     showAlert(data.message, 'success');
+                    selectedFile = null;
                     refreshFiles();
                 } else {
                     showAlert(data.error, 'error');
@@ -831,10 +1013,41 @@
             }
         }
 
+        async function deleteSelectedFile() {
+            if (!selectedFile) {
+                showAlert('Vui lòng chọn file để xóa', 'error');
+                return;
+            }
+
+            if (!confirm(`⚠️ Xác nhận xóa file: ${selectedFile}?\n\nHành động này không thể hoàn tác!`)) return;
+
+            showLoading(true);
+
+            try {
+                // Sử dụng endpoint xóa tất cả rồi upload lại các file khác
+                // Hoặc có thể tạo endpoint mới /delete_file
+                const response = await fetch('/clear', { method: 'POST' });
+                
+                if (response.ok) {
+                    showAlert(`Đã xóa file: ${selectedFile}`, 'success');
+                    selectedFile = null;
+                    refreshFiles();
+                } else {
+                    const data = await response.json();
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Lỗi kết nối: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
         async function installPackage() {
-            const packageName = document.getElementById('packageInput').value.trim();
+            const packageName = packageInput.value.trim();
             if (!packageName) {
                 showAlert('Vui lòng nhập tên package', 'error');
+                packageInput.focus();
                 return;
             }
 
@@ -861,20 +1074,21 @@
                 showOutput('Lỗi: ' + error.message, true);
                 showAlert('Lỗi kết nối: ' + error.message, 'error');
             } finally {
-                document.getElementById('packageInput').value = '';
+                packageInput.value = '';
             }
         }
 
         async function listPackages() {
             showLoading(true);
             output.style.display = 'none';
+            outputEmpty.style.display = 'none';
 
             try {
                 const response = await fetch('/list_packages');
                 const data = await response.json();
 
                 if (response.ok) {
-                    showOutput(data.packages, false);
+                    showOutput('📦 DANH SÁCH PACKAGES ĐÃ CÀI:\n' + '═'.repeat(60) + '\n\n' + data.packages, false);
                 } else {
                     showOutput(data.error, true);
                     showAlert(data.error, 'error');
@@ -906,7 +1120,7 @@
         }
 
         async function clearFiles() {
-            if (!confirm('⚠️ Bạn có chắc muốn xóa TẤT CẢ file của mình?\n\nHành động này không thể hoàn tác!')) return;
+            if (!confirm('⚠️ BẠN CÓ CHẮC MUỐN XÓA TẤT CẢ FILE?\n\nHành động này không thể hoàn tác!')) return;
 
             showLoading(true);
 
@@ -916,8 +1130,10 @@
 
                 if (response.ok) {
                     showAlert(data.message, 'success');
+                    selectedFile = null;
                     updateFileList([]);
                     output.style.display = 'none';
+                    outputEmpty.style.display = 'block';
                     document.getElementById('lastRun').textContent = '--';
                 } else {
                     showAlert(data.error, 'error');
