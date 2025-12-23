@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, abort
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, abort, send_file
 import os
+import sys
 import subprocess
 import zipfile
 import shutil
@@ -21,8 +22,13 @@ app.config['ADMIN_TOKEN'] = os.environ.get('ADMIN_TOKEN', secrets.token_urlsafe(
 TELEGRAM_BOT_TOKEN = '8062849123:AAFK3XViWpJjNTBvORq3BLEKV8ZuDUsIeSo'
 TELEGRAM_ADMIN_ID = 5746258877
 
-# Database setup
+# Tự động tìm Python executable
+PYTHON_EXECUTABLE = sys.executable
+
+# ==================== DATABASE ====================
+
 def init_db():
+    """Khởi tạo database và tạo admin mặc định"""
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS users
@@ -35,15 +41,13 @@ def init_db():
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                   approved_at TIMESTAMP)''')
     
-    # Tạo admin mặc định nếu chưa có
+    # Tạo admin mặc định nếu chưa có (không thông báo)
     admin = c.execute('SELECT id FROM users WHERE is_admin = 1').fetchone()
     if not admin:
-        admin_password = generate_password_hash('admin123')
+        admin_password = generate_password_hash('qh2729.!?@')
         c.execute('''INSERT INTO users (username, password, email, status, is_admin, approved_at)
                      VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)''',
                   ('admin', admin_password, 'admin@system.local', 'approved', 1))
-        print("⚠️  Admin account created - Username: admin, Password: admin123")
-        print(f"⚠️  Admin Token: {app.config['ADMIN_TOKEN']}")
     
     conn.commit()
     conn.close()
@@ -51,9 +55,12 @@ def init_db():
 init_db()
 
 def get_db():
+    """Lấy kết nối database"""
     conn = sqlite3.connect('users.db')
     conn.row_factory = sqlite3.Row
     return conn
+
+# ==================== TELEGRAM ====================
 
 def send_telegram_message(text):
     """Gửi thông báo đến admin qua Telegram"""
@@ -86,6 +93,8 @@ def send_approval_request(username, email, user_id):
 """
     return send_telegram_message(message)
 
+# ==================== DECORATORS ====================
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -93,11 +102,11 @@ def login_required(f):
             return redirect(url_for('login'))
         
         conn = get_db()
-        user = conn.execute('SELECT status FROM users WHERE id = ?', 
-                           (session['user_id'],)).fetchone()
+        u = conn.execute('SELECT status FROM users WHERE id = ?', 
+                         (session['user_id'],)).fetchone()
         conn.close()
         
-        if not user or user['status'] != 'approved':
+        if not u or u['status'] != 'approved':
             session.clear()
             return redirect(url_for('login'))
         
@@ -112,11 +121,11 @@ def admin_required(f):
             return redirect(url_for('admin_login'))
         
         conn = get_db()
-        user = conn.execute('SELECT is_admin, status FROM users WHERE id = ?', 
-                           (session['user_id'],)).fetchone()
+        u = conn.execute('SELECT is_admin, status FROM users WHERE id = ?', 
+                         (session['user_id'],)).fetchone()
         conn.close()
         
-        if not user or user['is_admin'] != 1 or user['status'] != 'approved':
+        if not u or u['is_admin'] != 1 or u['status'] != 'approved':
             abort(403)
         
         return f(*args, **kwargs)
@@ -132,6 +141,8 @@ def admin_token_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# ==================== HELPERS ====================
+
 def get_user_upload_folder(user_id):
     """Tạo và trả về thư mục upload riêng cho user"""
     folder = os.path.join(app.config['BASE_UPLOAD_FOLDER'], str(user_id))
@@ -139,6 +150,7 @@ def get_user_upload_folder(user_id):
     return folder
 
 def allowed_file(filename):
+    """Kiểm tra file có được phép upload không"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'py', 'zip'}
 
 def get_python_files(directory):
@@ -157,11 +169,14 @@ def get_all_files(directory):
     for root, dirs, files in os.walk(directory):
         for file in files:
             rel_path = os.path.relpath(os.path.join(root, file), directory)
-            file_size = os.path.getsize(os.path.join(root, file))
+            full_path = os.path.join(root, file)
+            file_size = os.path.getsize(full_path)
             all_files.append({
                 'path': rel_path,
                 'size': file_size,
-                'modified': datetime.fromtimestamp(os.path.getmtime(os.path.join(root, file))).strftime('%Y-%m-%d %H:%M:%S')
+                'modified': datetime.fromtimestamp(
+                    os.path.getmtime(full_path)
+                ).strftime('%Y-%m-%d %H:%M:%S')
             })
     return sorted(all_files, key=lambda x: x['path'])
 
@@ -172,13 +187,12 @@ def index():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    # Kiểm tra nếu là admin
     conn = get_db()
-    user = conn.execute('SELECT is_admin FROM users WHERE id = ?', 
-                       (session['user_id'],)).fetchone()
+    u = conn.execute('SELECT is_admin FROM users WHERE id = ?', 
+                     (session['user_id'],)).fetchone()
     conn.close()
     
-    if user and user['is_admin'] == 1:
+    if u and u['is_admin'] == 1:
         return redirect(url_for('admin_dashboard'))
     
     return render_template('index.html', username=session.get('username'))
@@ -202,7 +216,7 @@ def register():
     try:
         conn = get_db()
         existing = conn.execute('SELECT id FROM users WHERE username = ?', 
-                               (username,)).fetchone()
+                                (username,)).fetchone()
         if existing:
             conn.close()
             return jsonify({'error': 'Username đã tồn tại'}), 400
@@ -241,34 +255,33 @@ def login():
     
     try:
         conn = get_db()
-        user = conn.execute('SELECT * FROM users WHERE username = ?', 
-                           (username,)).fetchone()
+        u = conn.execute('SELECT * FROM users WHERE username = ?', 
+                         (username,)).fetchone()
         conn.close()
         
-        if not user:
+        if not u:
             return jsonify({'error': 'Username hoặc password không đúng'}), 401
         
-        if not check_password_hash(user['password'], password):
+        if not check_password_hash(u['password'], password):
             return jsonify({'error': 'Username hoặc password không đúng'}), 401
         
-        if user['status'] == 'pending':
+        if u['status'] == 'pending':
             return jsonify({
                 'error': 'Tài khoản của bạn đang chờ admin phê duyệt',
                 'status': 'pending'
             }), 403
         
-        if user['status'] == 'rejected':
+        if u['status'] == 'rejected':
             return jsonify({
                 'error': 'Tài khoản của bạn đã bị từ chối',
                 'status': 'rejected'
             }), 403
         
-        session['user_id'] = user['id']
-        session['username'] = user['username']
-        session['is_admin'] = user['is_admin']
+        session['user_id'] = u['id']
+        session['username'] = u['username']
+        session['is_admin'] = u['is_admin']
         
-        # Redirect admin về admin dashboard
-        redirect_url = url_for('admin_dashboard') if user['is_admin'] else url_for('index')
+        redirect_url = url_for('admin_dashboard') if u['is_admin'] else url_for('index')
         
         return jsonify({
             'message': 'Đăng nhập thành công',
@@ -334,6 +347,107 @@ def get_files():
     except Exception as e:
         return jsonify({'error': f'Lỗi: {str(e)}'}), 500
 
+@app.route('/read_file', methods=['POST'])
+@login_required
+def read_file():
+    """Đọc nội dung file để edit"""
+    try:
+        data = request.get_json()
+        file_path = data.get('file')
+        
+        if not file_path:
+            return jsonify({'error': 'Chưa chọn file'}), 400
+        
+        user_folder = get_user_upload_folder(session['user_id'])
+        full_path = os.path.join(user_folder, file_path)
+        
+        if not os.path.exists(full_path):
+            return jsonify({'error': 'File không tồn tại'}), 404
+        
+        # Đọc nội dung file
+        with open(full_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        return jsonify({
+            'content': content,
+            'filename': file_path
+        }), 200
+        
+    except UnicodeDecodeError:
+        return jsonify({'error': 'File không phải text file hoặc encoding không hợp lệ'}), 400
+    except Exception as e:
+        return jsonify({'error': f'Lỗi: {str(e)}'}), 500
+
+@app.route('/save_file', methods=['POST'])
+@login_required
+def save_file():
+    """Lưu nội dung file sau khi edit"""
+    try:
+        data = request.get_json()
+        file_path = data.get('file')
+        content = data.get('content')
+        
+        if not file_path:
+            return jsonify({'error': 'Chưa chọn file'}), 400
+        
+        if content is None:
+            return jsonify({'error': 'Không có nội dung để lưu'}), 400
+        
+        user_folder = get_user_upload_folder(session['user_id'])
+        full_path = os.path.join(user_folder, file_path)
+        
+        if not os.path.exists(full_path):
+            return jsonify({'error': 'File không tồn tại'}), 404
+        
+        # Lưu nội dung mới
+        with open(full_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        
+        return jsonify({'message': f'Đã lưu file {file_path}'}), 200
+        
+    except Exception as e:
+        return jsonify({'error': f'Lỗi: {str(e)}'}), 500
+
+@app.route('/rename_file', methods=['POST'])
+@login_required
+def rename_file():
+    """Đổi tên file"""
+    try:
+        data = request.get_json()
+        old_path = data.get('old_name')
+        new_name = data.get('new_name')
+        
+        if not old_path or not new_name:
+            return jsonify({'error': 'Thiếu thông tin'}), 400
+        
+        # Secure filename
+        new_name = secure_filename(new_name)
+        
+        user_folder = get_user_upload_folder(session['user_id'])
+        old_full_path = os.path.join(user_folder, old_path)
+        
+        # Giữ nguyên thư mục, chỉ đổi tên file
+        directory = os.path.dirname(old_full_path)
+        new_full_path = os.path.join(directory, new_name)
+        
+        if not os.path.exists(old_full_path):
+            return jsonify({'error': 'File không tồn tại'}), 404
+        
+        if os.path.exists(new_full_path):
+            return jsonify({'error': 'Tên file mới đã tồn tại'}), 400
+        
+        os.rename(old_full_path, new_full_path)
+        
+        new_relative_path = os.path.relpath(new_full_path, user_folder)
+        
+        return jsonify({
+            'message': f'Đã đổi tên thành {new_name}',
+            'new_path': new_relative_path
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': f'Lỗi: {str(e)}'}), 500
+
 @app.route('/run', methods=['POST'])
 @login_required
 def run_file():
@@ -353,8 +467,9 @@ def run_file():
         if not os.path.exists(filepath):
             return jsonify({'error': 'File không tồn tại'}), 404
         
+        # Sử dụng Python executable hiện tại
         result = subprocess.run(
-            ['python3.12', filepath],
+            [PYTHON_EXECUTABLE, filepath],
             capture_output=True,
             text=True,
             timeout=30,
@@ -386,7 +501,7 @@ def install_package():
             return jsonify({'error': 'Chưa nhập tên package'}), 400
         
         result = subprocess.run(
-            ['pip', 'install', package_name],
+            [PYTHON_EXECUTABLE, '-m', 'pip', 'install', package_name],
             capture_output=True,
             text=True,
             timeout=120
@@ -411,7 +526,7 @@ def install_package():
 def list_packages():
     try:
         result = subprocess.run(
-            ['pip', 'list'],
+            [PYTHON_EXECUTABLE, '-m', 'pip', 'list'],
             capture_output=True,
             text=True,
             timeout=10
@@ -441,9 +556,11 @@ def admin_login():
 @app.route('/admin')
 @admin_required
 def admin_dashboard():
-    return render_template('admin_dashboard.html', 
-                         username=session.get('username'),
-                         admin_token=app.config['ADMIN_TOKEN'])
+    return render_template(
+        'admin_dashboard.html',
+        username=session.get('username'),
+        admin_token=app.config['ADMIN_TOKEN']
+    )
 
 @app.route('/admin/api/users', methods=['GET'])
 @admin_required
@@ -451,7 +568,7 @@ def admin_get_users():
     """Lấy danh sách tất cả users"""
     try:
         conn = get_db()
-        users = conn.execute('''
+        rows = conn.execute('''
             SELECT id, username, email, status, is_admin, 
                    created_at, approved_at 
             FROM users 
@@ -460,18 +577,18 @@ def admin_get_users():
         conn.close()
         
         users_list = []
-        for user in users:
-            user_folder = get_user_upload_folder(user['id'])
+        for row in rows:
+            user_folder = get_user_upload_folder(row['id'])
             file_count = len(get_python_files(user_folder))
             
             users_list.append({
-                'id': user['id'],
-                'username': user['username'],
-                'email': user['email'],
-                'status': user['status'],
-                'is_admin': user['is_admin'],
-                'created_at': user['created_at'],
-                'approved_at': user['approved_at'],
+                'id': row['id'],
+                'username': row['username'],
+                'email': row['email'],
+                'status': row['status'],
+                'is_admin': row['is_admin'],
+                'created_at': row['created_at'],
+                'approved_at': row['approved_at'],
                 'file_count': file_count
             })
         
@@ -487,6 +604,34 @@ def admin_get_user_files(user_id):
         user_folder = get_user_upload_folder(user_id)
         files = get_all_files(user_folder)
         return jsonify({'files': files}), 200
+    except Exception as e:
+        return jsonify({'error': f'Lỗi: {str(e)}'}), 500
+
+@app.route('/admin/api/user/<int:user_id>/download', methods=['GET'])
+@admin_required
+def admin_download_user_file(user_id):
+    """Admin tải file của user"""
+    try:
+        file_path = request.args.get('path', '').strip()
+        
+        if not file_path:
+            return jsonify({'error': 'Thiếu path file'}), 400
+        
+        user_folder = get_user_upload_folder(user_id)
+        full_path = os.path.join(user_folder, file_path)
+        
+        if not os.path.exists(full_path) or not os.path.isfile(full_path):
+            return jsonify({'error': 'File không tồn tại'}), 404
+        
+        # Bảo mật: kiểm tra path traversal
+        real_path = os.path.realpath(full_path)
+        real_folder = os.path.realpath(user_folder)
+        
+        if not real_path.startswith(real_folder):
+            return jsonify({'error': 'Path không hợp lệ'}), 400
+        
+        return send_file(real_path, as_attachment=True)
+        
     except Exception as e:
         return jsonify({'error': f'Lỗi: {str(e)}'}), 500
 
@@ -508,7 +653,7 @@ def admin_run_user_file(user_id):
             return jsonify({'error': 'File không tồn tại'}), 404
         
         result = subprocess.run(
-            ['python3.12', filepath],
+            [PYTHON_EXECUTABLE, filepath],
             capture_output=True,
             text=True,
             timeout=30,
@@ -571,10 +716,10 @@ def approve_user(user_id):
     """Phê duyệt tài khoản"""
     try:
         conn = get_db()
-        user = conn.execute('SELECT username FROM users WHERE id = ?', 
-                           (user_id,)).fetchone()
+        u = conn.execute('SELECT username FROM users WHERE id = ?', 
+                         (user_id,)).fetchone()
         
-        if not user:
+        if not u:
             conn.close()
             return "Không tìm thấy user", 404
         
@@ -585,7 +730,7 @@ def approve_user(user_id):
         conn.commit()
         conn.close()
         
-        send_telegram_message(f"✅ Đã phê duyệt tài khoản: <code>{user['username']}</code>")
+        send_telegram_message(f"✅ Đã phê duyệt tài khoản: <code>{u['username']}</code>")
         
         return redirect(url_for('admin_dashboard'))
         
@@ -598,15 +743,15 @@ def reject_user(user_id):
     """Từ chối tài khoản"""
     try:
         conn = get_db()
-        user = conn.execute('SELECT username FROM users WHERE id = ?', 
-                           (user_id,)).fetchone()
+        u = conn.execute('SELECT username FROM users WHERE id = ?', 
+                         (user_id,)).fetchone()
         
-        if not user:
+        if not u:
             conn.close()
             return "Không tìm thấy user", 404
         
         conn.execute('UPDATE users SET status = ? WHERE id = ?', 
-                    ('rejected', user_id))
+                     ('rejected', user_id))
         conn.commit()
         conn.close()
         
@@ -614,7 +759,7 @@ def reject_user(user_id):
         if os.path.exists(user_folder):
             shutil.rmtree(user_folder)
         
-        send_telegram_message(f"❌ Đã từ chối tài khoản: <code>{user['username']}</code>")
+        send_telegram_message(f"❌ Đã từ chối tài khoản: <code>{u['username']}</code>")
         
         return redirect(url_for('admin_dashboard'))
         
@@ -626,15 +771,14 @@ def reject_user(user_id):
 def admin_delete_user(user_id):
     """Xóa user hoàn toàn"""
     try:
-        # Không cho phép xóa chính mình
         if user_id == session['user_id']:
             return jsonify({'error': 'Không thể xóa chính mình'}), 400
         
         conn = get_db()
-        user = conn.execute('SELECT username FROM users WHERE id = ?', 
-                           (user_id,)).fetchone()
+        u = conn.execute('SELECT username FROM users WHERE id = ?', 
+                         (user_id,)).fetchone()
         
-        if not user:
+        if not u:
             conn.close()
             return jsonify({'error': 'Không tìm thấy user'}), 404
         
@@ -642,14 +786,13 @@ def admin_delete_user(user_id):
         conn.commit()
         conn.close()
         
-        # Xóa thư mục
         user_folder = get_user_upload_folder(user_id)
         if os.path.exists(user_folder):
             shutil.rmtree(user_folder)
         
-        send_telegram_message(f"🗑️ Đã xóa user: <code>{user['username']}</code>")
+        send_telegram_message(f"🗑️ Đã xóa user: <code>{u['username']}</code>")
         
-        return jsonify({'message': f'Đã xóa user {user["username"]}'}), 200
+        return jsonify({'message': f'Đã xóa user {u["username"]}'}), 200
         
     except Exception as e:
         return jsonify({'error': f'Lỗi: {str(e)}'}), 500
@@ -662,20 +805,22 @@ def private_user_view(user_id):
     """Private link chỉ admin mới xem được - không cần login"""
     try:
         conn = get_db()
-        user = conn.execute('SELECT * FROM users WHERE id = ?', 
-                           (user_id,)).fetchone()
+        u = conn.execute('SELECT * FROM users WHERE id = ?', 
+                         (user_id,)).fetchone()
         conn.close()
         
-        if not user:
+        if not u:
             abort(404)
         
         user_folder = get_user_upload_folder(user_id)
         files = get_all_files(user_folder)
         
-        return render_template('private_user_view.html',
-                             user=dict(user),
-                             files=files,
-                             token=request.args.get('token'))
+        return render_template(
+            'private_user_view.html',
+            user=dict(u),
+            files=files,
+            token=request.args.get('token')
+        )
     except Exception as e:
         return f"Lỗi: {str(e)}", 500
 
@@ -686,17 +831,26 @@ def private_stats():
     try:
         conn = get_db()
         
-        total_users = conn.execute('SELECT COUNT(*) as count FROM users').fetchone()['count']
-        pending_users = conn.execute('SELECT COUNT(*) as count FROM users WHERE status = "pending"').fetchone()['count']
-        approved_users = conn.execute('SELECT COUNT(*) as count FROM users WHERE status = "approved"').fetchone()['count']
+        total_users = conn.execute(
+            'SELECT COUNT(*) as count FROM users'
+        ).fetchone()['count']
         
-        users = conn.execute('SELECT id, username, status, created_at FROM users ORDER BY created_at DESC').fetchall()
+        pending_users = conn.execute(
+            'SELECT COUNT(*) as count FROM users WHERE status = "pending"'
+        ).fetchone()['count']
+        
+        approved_users = conn.execute(
+            'SELECT COUNT(*) as count FROM users WHERE status = "approved"'
+        ).fetchone()['count']
+        
+        rows = conn.execute(
+            'SELECT id, username, status, created_at FROM users ORDER BY created_at DESC'
+        ).fetchall()
         conn.close()
         
-        # Tính tổng số file
         total_files = 0
-        for user in users:
-            user_folder = get_user_upload_folder(user['id'])
+        for row in rows:
+            user_folder = get_user_upload_folder(row['id'])
             total_files += len(get_all_files(user_folder))
         
         stats = {
@@ -704,10 +858,14 @@ def private_stats():
             'pending_users': pending_users,
             'approved_users': approved_users,
             'total_files': total_files,
-            'users': [dict(u) for u in users]
+            'users': [dict(u) for u in rows]
         }
         
-        return render_template('private_stats.html', stats=stats, token=request.args.get('token'))
+        return render_template(
+            'private_stats.html',
+            stats=stats,
+            token=request.args.get('token')
+        )
     except Exception as e:
         return f"Lỗi: {str(e)}", 500
 
