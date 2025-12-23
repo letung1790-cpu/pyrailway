@@ -15,15 +15,15 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
         }
         
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            padding: 30px;
+            padding: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         
@@ -31,14 +31,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
             border-bottom: 2px solid #e0e0e0;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
         .header-left h1 {
             color: #667eea;
-            font-size: 2em;
+            font-size: 1.8em;
             margin-bottom: 5px;
         }
         
@@ -66,7 +68,7 @@
         }
         
         .section {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             padding: 20px;
             background: #f8f9fa;
             border-radius: 12px;
@@ -76,7 +78,7 @@
         .section h2 {
             color: #333;
             margin-bottom: 15px;
-            font-size: 1.3em;
+            font-size: 1.2em;
         }
         
         .upload-area {
@@ -104,14 +106,15 @@
         }
         
         .btn {
-            padding: 12px 24px;
+            padding: 10px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.95em;
             font-weight: 600;
             transition: all 0.3s;
             margin: 5px;
+            white-space: nowrap;
         }
         
         .btn-primary {
@@ -152,6 +155,25 @@
         .btn-info:hover {
             background: #138496;
             transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
         }
         
         select, input[type="text"] {
@@ -224,7 +246,7 @@
         }
         
         .file-list {
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
             margin-top: 10px;
         }
@@ -263,7 +285,7 @@
         
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             margin-top: 15px;
         }
@@ -296,6 +318,180 @@
             font-size: 0.9em;
             font-weight: 600;
         }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideDown 0.3s;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.3em;
+        }
+        
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .close:hover {
+            opacity: 0.8;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-radius: 0 0 12px 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 400px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            resize: vertical;
+            background: #1e1e1e;
+            color: #00ff00;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+                border-radius: 15px;
+            }
+            
+            .header-left h1 {
+                font-size: 1.5em;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            .section h2 {
+                font-size: 1.1em;
+            }
+            
+            .upload-area {
+                padding: 20px;
+            }
+            
+            .flex-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+            
+            textarea {
+                min-height: 300px;
+                font-size: 0.85em;
+            }
+            
+            .user-info span {
+                display: block;
+                margin-top: 5px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                text-align: center;
+            }
+            
+            .header-left h1 {
+                font-size: 1.3em;
+            }
+            
+            .upload-area p {
+                font-size: 0.9em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -325,22 +521,24 @@
         </div>
         
         <div class="section">
-            <h2>🎯 Chọn File để Chạy</h2>
-            <select id="fileSelect" size="5" class="file-list">
+            <h2>📂 Quản lý File</h2>
+            <select id="fileSelect" size="8" class="file-list">
                 <option value="">-- Chưa có file nào --</option>
             </select>
             <div class="flex-buttons">
-                <button class="btn btn-success" onclick="runFile()">▶️ Chạy File</button>
-                <button class="btn btn-info" onclick="refreshFiles()">🔄 Làm mới danh sách</button>
-                <button class="btn btn-danger" onclick="clearFiles()">🗑️ Xóa tất cả file của tôi</button>
+                <button class="btn btn-success" onclick="runFile()">▶️ Chạy</button>
+                <button class="btn btn-primary" onclick="editFile()">✏️ Sửa</button>
+                <button class="btn btn-warning" onclick="renameFile()">🏷️ Đổi tên</button>
+                <button class="btn btn-info" onclick="refreshFiles()">🔄 Làm mới</button>
+                <button class="btn btn-danger" onclick="clearFiles()">🗑️ Xóa tất cả</button>
             </div>
         </div>
         
         <div class="section">
             <h2>📦 Cài đặt Package</h2>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="packageInput" placeholder="Nhập tên package (vd: requests, numpy, pandas)">
-                <button class="btn btn-primary" onclick="installPackage()" style="white-space: nowrap;">📥 Cài đặt</button>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" id="packageInput" placeholder="Nhập tên package (vd: requests, numpy, pandas)" style="flex: 1; min-width: 200px;">
+                <button class="btn btn-primary" onclick="installPackage()">📥 Cài đặt</button>
             </div>
             <button class="btn btn-info" onclick="listPackages()" style="margin-top: 10px;">📋 Xem packages đã cài</button>
         </div>
@@ -357,11 +555,28 @@
         <div class="stats">
             <div class="stat-card">
                 <h3 id="fileCount">0</h3>
-                <p>File Python của bạn</p>
+                <p>📄 File Python</p>
             </div>
             <div class="stat-card">
                 <h3 id="lastRun">--</h3>
-                <p>Lần chạy cuối</p>
+                <p>⏰ Lần chạy cuối</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit File -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Chỉnh sửa File: <span id="editFileName"></span></h2>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <textarea id="fileEditor" placeholder="Nội dung file sẽ hiển thị ở đây..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="saveFile()">💾 Lưu</button>
+                <button class="btn btn-secondary" onclick="closeEditModal()">❌ Đóng</button>
             </div>
         </div>
     </div>
@@ -373,6 +588,11 @@
         const output = document.getElementById('output');
         const loading = document.getElementById('loading');
         const alertContainer = document.getElementById('alertContainer');
+        const editModal = document.getElementById('editModal');
+        const fileEditor = document.getElementById('fileEditor');
+        const editFileName = document.getElementById('editFileName');
+
+        let currentEditingFile = null;
 
         uploadArea.addEventListener('click', () => fileInput.click());
 
@@ -397,17 +617,26 @@
 
         fileInput.addEventListener('change', uploadFile);
 
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target == editModal) {
+                closeEditModal();
+            }
+        }
+
         function showAlert(message, type = 'info') {
             const alert = document.createElement('div');
             alert.className = `alert alert-${type}`;
-            alert.textContent = message;
+            alert.innerHTML = `<strong>${type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'}</strong> ${message}`;
             alertContainer.appendChild(alert);
             setTimeout(() => alert.remove(), 5000);
         }
 
         function showLoading(show) {
             loading.classList.toggle('active', show);
-            output.style.display = show ? 'none' : 'block';
+            if (!show) {
+                loading.style.display = 'none';
+            }
         }
 
         function showOutput(text, isError = false) {
@@ -456,7 +685,7 @@
                 files.forEach(file => {
                     const option = document.createElement('option');
                     option.value = file;
-                    option.textContent = file;
+                    option.textContent = '📄 ' + file;
                     fileSelect.appendChild(option);
                 });
             }
@@ -471,6 +700,7 @@
             }
 
             showLoading(true);
+            output.style.display = 'none';
 
             try {
                 const response = await fetch('/run', {
@@ -483,15 +713,15 @@
 
                 if (response.ok) {
                     let result = '';
-                    if (data.stdout) result += 'OUTPUT:\n' + data.stdout + '\n';
-                    if (data.stderr) result += '\nERROR:\n' + data.stderr;
+                    if (data.stdout) result += '=== OUTPUT ===\n' + data.stdout + '\n';
+                    if (data.stderr) result += '\n=== ERROR ===\n' + data.stderr;
                     if (!data.stdout && !data.stderr) result = 'Không có output';
                     
                     showOutput(result, data.returncode !== 0);
                     document.getElementById('lastRun').textContent = new Date().toLocaleTimeString('vi-VN');
                     
                     if (data.returncode === 0) {
-                        showAlert('Chạy thành công!', 'success');
+                        showAlert('Chạy thành công! ✅', 'success');
                     } else {
                         showAlert('Chạy thất bại (exit code: ' + data.returncode + ')', 'error');
                     }
@@ -501,6 +731,102 @@
                 }
             } catch (error) {
                 showOutput('Lỗi: ' + error.message, true);
+                showAlert('Lỗi kết nối: ' + error.message, 'error');
+            }
+        }
+
+        async function editFile() {
+            const selectedFile = fileSelect.value;
+            if (!selectedFile) {
+                showAlert('Vui lòng chọn file để chỉnh sửa', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/read_file', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ file: selectedFile })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentEditingFile = selectedFile;
+                    editFileName.textContent = selectedFile;
+                    fileEditor.value = data.content;
+                    editModal.style.display = 'block';
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Lỗi kết nối: ' + error.message, 'error');
+            }
+        }
+
+        async function saveFile() {
+            if (!currentEditingFile) return;
+
+            const content = fileEditor.value;
+
+            try {
+                const response = await fetch('/save_file', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        file: currentEditingFile,
+                        content: content
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert(data.message, 'success');
+                    closeEditModal();
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Lỗi kết nối: ' + error.message, 'error');
+            }
+        }
+
+        function closeEditModal() {
+            editModal.style.display = 'none';
+            currentEditingFile = null;
+            fileEditor.value = '';
+        }
+
+        async function renameFile() {
+            const selectedFile = fileSelect.value;
+            if (!selectedFile) {
+                showAlert('Vui lòng chọn file để đổi tên', 'error');
+                return;
+            }
+
+            const newName = prompt('Nhập tên mới cho file:', selectedFile.split('/').pop());
+            if (!newName || newName.trim() === '') return;
+
+            try {
+                const response = await fetch('/rename_file', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        old_name: selectedFile,
+                        new_name: newName.trim()
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert(data.message, 'success');
+                    refreshFiles();
+                } else {
+                    showAlert(data.error, 'error');
+                }
+            } catch (error) {
                 showAlert('Lỗi kết nối: ' + error.message, 'error');
             }
         }
@@ -541,6 +867,7 @@
 
         async function listPackages() {
             showLoading(true);
+            output.style.display = 'none';
 
             try {
                 const response = await fetch('/list_packages');
@@ -567,7 +894,7 @@
 
                 if (response.ok) {
                     updateFileList(data.python_files);
-                    showAlert('Đã làm mới danh sách', 'success');
+                    showAlert('Đã làm mới danh sách file', 'success');
                 } else {
                     showAlert(data.error, 'error');
                 }
@@ -579,7 +906,7 @@
         }
 
         async function clearFiles() {
-            if (!confirm('Bạn có chắc muốn xóa tất cả file của mình?')) return;
+            if (!confirm('⚠️ Bạn có chắc muốn xóa TẤT CẢ file của mình?\n\nHành động này không thể hoàn tác!')) return;
 
             showLoading(true);
 
@@ -591,6 +918,7 @@
                     showAlert(data.message, 'success');
                     updateFileList([]);
                     output.style.display = 'none';
+                    document.getElementById('lastRun').textContent = '--';
                 } else {
                     showAlert(data.error, 'error');
                 }
@@ -601,6 +929,7 @@
             }
         }
 
+        // Load files on page load
         refreshFiles();
     </script>
 </body>
