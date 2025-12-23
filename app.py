@@ -17,8 +17,8 @@ app.config['BASE_UPLOAD_FOLDER'] = 'user_uploads'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 # Telegram Bot Configuration
-TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
-TELEGRAM_ADMIN_ID = os.environ.get('TELEGRAM_ADMIN_ID', '')
+TELEGRAM_BOT_TOKEN = '8062849123:AAFK3XViWpJjNTBvORq3BLEKV8ZuDUsIeSo'
+TELEGRAM_ADMIN_ID = 5746258877
 
 # Database setup
 def init_db():
