@@ -1,0 +1,47 @@
+<!-- private_user_view.html -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Private User View</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #667eea; }
+        .file-item {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Private View - {{ user.username }}</h1>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Status:</strong> {{ user.status }}</p>
+        
+        <h2>📁 Files ({{ files|length }})</h2>
+        {% for file in files %}
+        <div class="file-item">
+            <strong>{{ file.path }}</strong><br>
+            Size: {{ (file.size / 1024)|round(2) }} KB | Modified: {{ file.modified }}
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
+
+<!-- private_stats.html tương tự -->
