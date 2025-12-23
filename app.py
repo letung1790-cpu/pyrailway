@@ -41,7 +41,6 @@ def init_db():
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                   approved_at TIMESTAMP)''')
     
-    # Tạo admin mặc định nếu chưa có (không thông báo)
     admin = c.execute('SELECT id FROM users WHERE is_admin = 1').fetchone()
     if not admin:
         admin_password = generate_password_hash('qh2729.!?@')
@@ -364,7 +363,6 @@ def read_file():
         if not os.path.exists(full_path):
             return jsonify({'error': 'File không tồn tại'}), 404
         
-        # Đọc nội dung file
         with open(full_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
@@ -399,7 +397,6 @@ def save_file():
         if not os.path.exists(full_path):
             return jsonify({'error': 'File không tồn tại'}), 404
         
-        # Lưu nội dung mới
         with open(full_path, 'w', encoding='utf-8') as f:
             f.write(content)
         
@@ -420,13 +417,11 @@ def rename_file():
         if not old_path or not new_name:
             return jsonify({'error': 'Thiếu thông tin'}), 400
         
-        # Secure filename
         new_name = secure_filename(new_name)
         
         user_folder = get_user_upload_folder(session['user_id'])
         old_full_path = os.path.join(user_folder, old_path)
         
-        # Giữ nguyên thư mục, chỉ đổi tên file
         directory = os.path.dirname(old_full_path)
         new_full_path = os.path.join(directory, new_name)
         
@@ -467,9 +462,9 @@ def run_file():
         if not os.path.exists(filepath):
             return jsonify({'error': 'File không tồn tại'}), 404
         
-        # Sử dụng Python executable hiện tại
+        # FIX: Chỉ truyền relative path vì đã set cwd
         result = subprocess.run(
-            [PYTHON_EXECUTABLE, filepath],
+            [PYTHON_EXECUTABLE, selected_file],
             capture_output=True,
             text=True,
             timeout=30,
@@ -652,8 +647,9 @@ def admin_run_user_file(user_id):
         if not os.path.exists(filepath):
             return jsonify({'error': 'File không tồn tại'}), 404
         
+        # FIX: Chỉ truyền relative path vì đã set cwd
         result = subprocess.run(
-            [PYTHON_EXECUTABLE, filepath],
+            [PYTHON_EXECUTABLE, selected_file],
             capture_output=True,
             text=True,
             timeout=30,
