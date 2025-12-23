@@ -3,7 +3,7 @@ Werkzeug
 gunicorn
 requests
 python-telegram-bot
-TelegramBotAPI
+pyTelegramBotAPI
 discord
 httpx
 colorama
