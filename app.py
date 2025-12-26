@@ -19,7 +19,7 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 app.config['ADMIN_TOKEN'] = os.environ.get('ADMIN_TOKEN', secrets.token_urlsafe(32))
 
 # Telegram Bot Configuration
-TELEGRAM_BOT_TOKEN = '8062849123:AAFK3XViWpJjNTBvORq3BLEKV8ZuDUsIeSo'
+TELEGRAM_BOT_TOKEN = 'token'
 TELEGRAM_ADMIN_ID = 5746258877
 
 # Tự động tìm Python executable
